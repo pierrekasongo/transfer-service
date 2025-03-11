@@ -1,0 +1,38 @@
+{
+    "urn": "urn:mediator:hie-data-mediator-notification",
+    "version": "1.0.0",
+    "name": "HIE data Mediator - realtime notification",
+    "description": "HIE data mediator for realtime notifications",
+    "defaultChannelConfig": [
+      {
+        "name": "Realtime notifications channel",
+        "urlPattern": "^/notification/.*",
+        "routes": [
+          {
+            "name": "Get or POST notifications",
+            "secured": false,
+            "primary": true,
+            "methods": ["GET", "PUT", "POST"],
+            "headers": {
+              "Access-Control-Allow-Origin": "*",
+              "Access-Control-Allow-Methods": "GET, POST, PUT",
+              "Access-Control-Allow-Headers": "Content-Type, Authorization"
+            }
+          }
+        ],
+        "open": true,
+        "allow": ["sih"],
+        "methods": ["GET", "PUT", "POST"],
+        "type": "http"
+      }
+    ],
+    "endpoints": [
+      {
+        "name": "DRC HIE-notification Endpoint",
+        "host": "localhost",
+        "port": 5001,
+        "path": "/hie"
+      }
+    ]
+  }
+  

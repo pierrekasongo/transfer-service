@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: transfer_postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: transfer_app
+    restart: always
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    environment:
+      HOST: ${HOST}
+      PORT: ${PORT}
+      DATABASE_URL: ${DATABASE_URL}
+      OPENHIM_URL: ${OPENHIM_URL}
+      OPENHIM_USERNAME: ${OPENHIM_USERNAME}
+      OPENHIM_PASSWORD: ${OPENHIM_PASSWORD}
+      MEDIATOR_URN: ${MEDIATOR_URN}
+      MEDIATOR_HOST: ${MEDIATOR_HOST}
+      OPENHIM_REGISTER: ${OPENHIM_REGISTER}
+      FHIR_URL: ${FHIR_URL}
+      EXTENSION_URI: ${EXTENSION_URI}
+      RUA_URL: ${RUA_URL}
+      RUA_TOKEN: ${RUA_TOKEN}
+      MERCURE_URL: ${MERCURE_URL}
+      MERCURE_PUBLISHER_SECRET: ${MERCURE_PUBLISHER_SECRET}
+      MEDIATOR_PORT: ${MEDIATOR_PORT}
+    ports:
+      - '${PORT}:${PORT}'
+    command: pnpm run start:prod
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+
+volumes:
+  postgres_data:
