@@ -30,19 +30,19 @@ export class MercureService {
   async publish(topic, data) {
     try {
       // Get patient data from RUA
-      const patient = await this.ruaService.getPatientByINS(data.patient_ins);
+      //const patient = await this.ruaService.getPatientByINS(data.patient_ins);
 
-      data.patient = {
+      /*data.patient = {
         id_adresse: patient.id_adresse,
         ins: patient.ins,
         nom: patient.nom,
         postnom: patient.postnom,
         prenom: patient.prenom,
         telephone_principal: patient.telephone_principal,
-        canal_enregistrement: patient.canal_enregistrement,
+        canal_enregistrement: patient.transfer,
         initial_sexe: patient.initial_sexe,
         adresse: patient.adresse,
-      };
+      };*/
       const jwtToken = this.generateJwtToken(topic);
       await axios.post(
         this.mercureUrl,
