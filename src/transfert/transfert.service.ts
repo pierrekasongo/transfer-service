@@ -91,10 +91,16 @@ export class TransfertService {
   }
 
   async findAll(status?: string, topic?: string, from?: Date, to?: Date) {
+    topic = topic?.replaceAll('"', '').replaceAll("'", '').trim();
+    status = status?.replaceAll('"', '').replaceAll("'", '').trim();
     const data = await this.databaseService.transfert.findMany({
       where: {
-        ...(status ? { status } : {}), // Apply status filter only if defined
-        ...(topic ? { OR: [{ source: topic }, { destination: topic }] } : {}), // Apply OR filter only if topic is defined
+        ...(status ? { status: status } : {}), // Apply status filter only if defined
+        ...(topic
+          ? {
+              OR: [{ source_id: topic }, { destination_id: topic }],
+            }
+          : {}), // Apply OR filter only if topic is defined
         ...(from || to
           ? {
               createdAt: {
@@ -102,7 +108,7 @@ export class TransfertService {
                 ...(to ? { lte: new Date(to + 'T23:59:59.999Z') } : {}),
               },
             }
-          : {}), // Apply createdAt range filter if either fromDate or toDate is provided
+          : {}),
       },
     });
 
