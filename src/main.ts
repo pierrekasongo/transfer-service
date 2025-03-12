@@ -13,7 +13,7 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
   app.useLogger(app.get(MyLoggerService));
   app.enableCors();
-  app.setGlobalPrefix('api');
+  //app.setGlobalPrefix('api');
   app.useLogger(app.get(MyLoggerService));
   // Ensure the app is fully initialized before calling the OpenHIM service
   await app.init();
