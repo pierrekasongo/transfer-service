@@ -9,6 +9,7 @@ import { Status } from 'src/common/enums/status.enum';
 import { MercureService } from 'src/mercure/mercure.service';
 import { FhirService } from 'src/fhir/fhir.service';
 import { ActionEnum } from 'src/common/enums/action.enum';
+import { RuaService } from 'src/rua/rua.service';
 
 @Injectable()
 export class TransfertService {
@@ -16,12 +17,26 @@ export class TransfertService {
     private readonly databaseService: DatabaseService,
     private readonly mercureService: MercureService,
     private readonly fhirService: FhirService,
+    private readonly ruaService: RuaService,
   ) {}
   async create(resource: any) {
     // Flatten resource
     const createTransfertDto = await this.fhirService.flattenResource(resource);
 
     const { patient_ins } = createTransfertDto;
+
+    const result = await this.ruaService.getPatientByINS(patient_ins);
+
+    if (result) {
+      console.log('INSIDE HERE');
+      // Check patient
+      const patientResult = this.fhirService.ensurePatientExists(
+        patient_ins,
+        result.data,
+      );
+    }
+
+    return;
 
     // Check if there's already an in-progress transfer for the given patient_ins
     const existingTransfer = await this.databaseService.transfert.findFirst({

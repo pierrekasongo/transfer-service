@@ -8,6 +8,9 @@ export class RuaService {
 
   private ruaURL = this.configService.get<string>('RUA_URL');
   private ruaToken = this.configService.get<string>('RUA_TOKEN');
+
+  // Function to flatten patientRUA resource data to a simple format
+
   async getPatientByINS(ins: string) {
     try {
       const result = await axios.get(`${this.ruaURL}/personnes/ins/${ins}`, {
