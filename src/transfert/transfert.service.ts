@@ -3,6 +3,7 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  HttpException,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { Status } from 'src/common/enums/status.enum';
@@ -21,88 +22,94 @@ export class TransfertService {
   ) {}
   async create(resource: any) {
     // Flatten resource
-    const createTransfertDto = await this.fhirService.flattenResource(resource);
+    try {
+      const createTransfertDto =
+        await this.fhirService.flattenResource(resource);
 
-    const { patient_ins } = createTransfertDto;
+      const { patient_ins } = createTransfertDto;
 
-    const result = await this.ruaService.getPatientByINS(patient_ins);
-
-    if (result) {
-      console.log('INSIDE HERE');
-      // Check patient
-      const patientResult = this.fhirService.ensurePatientExists(
-        patient_ins,
-        result.data,
-      );
-    }
-
-    return;
-
-    // Check if there's already an in-progress transfer for the given patient_ins
-    const existingTransfer = await this.databaseService.transfert.findFirst({
-      where: {
-        patient_ins,
-        status: Status.TRANSFER_IN_PROGRESS, // Since status is now stored as a string
-      },
-    });
-
-    // If a transfer is found, return a message instead of creating a new one
-    if (existingTransfer) {
-      throw new ConflictException(`Un transfert est en cours pour ce patient.`);
-    }
-
-    // Set default values if needed
-    if (!createTransfertDto?.note) {
-      createTransfertDto.note = '';
-    }
-
-    // Ensure status is set correctly
-    createTransfertDto.status = Status.TRANSFER_IN_PROGRESS;
-
-    // Create the transfer
-    const newTransfer = await this.databaseService.transfert.create({
-      data: { ...createTransfertDto },
-    });
-
-    if (newTransfer) {
-      // Push to FHIR
-      // Get the id from the newly inserted and add it to the resource
-      resource.id = newTransfer.id;
-
-      // Make locations array
-      const locations = [
-        { id: createTransfertDto.source_id, name: createTransfertDto.source },
-        {
-          id: createTransfertDto.destination_id,
-          name: createTransfertDto.destination,
-        },
-      ];
-
-      for (const loc of locations) {
-        // Make sure source location exists
-        await this.fhirService.ensureLocationExists(loc.id, loc.name);
-      }
-
-      const fhirResult = await this.fhirService.putResource(
-        resource,
-        ActionEnum.PUT,
-      );
-
-      if (fhirResult.status === HttpStatus.CREATED) {
-        // Publish to Mercure
-        await this.mercureService.publish(
-          createTransfertDto.destination_id,
-          newTransfer,
+      const result = await this.ruaService.getPatientByINS(patient_ins);
+      if (result) {
+        // Check patient
+        const patientResult = this.fhirService.ensurePatientExists(
+          patient_ins,
+          result,
         );
-      } else {
-        // Delete the newly created record from db
-        await this.remove(newTransfer.id);
-        //return fhirResult;
-        throw new NotFoundException(`${fhirResult.message.diagnostics}`);
       }
-    }
 
-    return { status: HttpStatus.CREATED, data: newTransfer };
+      // Check if there's already an in-progress transfer for the given patient_ins
+      const existingTransfer = await this.databaseService.transfert.findFirst({
+        where: {
+          patient_ins,
+          status: Status.TRANSFER_IN_PROGRESS, // Since status is now stored as a string
+        },
+      });
+
+      // If a transfer is found, return a message instead of creating a new one
+      if (existingTransfer) {
+        throw new ConflictException(
+          `Un transfert est en cours pour ce patient.`,
+        );
+      }
+
+      // Set default values if needed
+      if (!createTransfertDto?.note) {
+        createTransfertDto.note = '';
+      }
+
+      // Ensure status is set correctly
+      createTransfertDto.status = Status.TRANSFER_IN_PROGRESS;
+
+      // Create the transfer
+      const newTransfer = await this.databaseService.transfert.create({
+        data: { ...createTransfertDto },
+      });
+
+      if (newTransfer) {
+        // Push to FHIR
+        // Get the id from the newly inserted and add it to the resource
+        resource.id = newTransfer.id;
+
+        // Make locations array
+        const locations = [
+          { id: createTransfertDto.source_id, name: createTransfertDto.source },
+          {
+            id: createTransfertDto.destination_id,
+            name: createTransfertDto.destination,
+          },
+        ];
+
+        for (const loc of locations) {
+          // Make sure source location exists
+          await this.fhirService.ensureLocationExists(loc.id, loc.name);
+        }
+
+        const fhirResult = await this.fhirService.putResource(
+          resource,
+          ActionEnum.PUT,
+        );
+
+        if (fhirResult.status === HttpStatus.CREATED) {
+          // Publish to Mercure
+          await this.mercureService.publish(
+            createTransfertDto.destination_id,
+            newTransfer,
+          );
+        } else {
+          // Delete the newly created record from db
+          await this.remove(newTransfer.id);
+          //return fhirResult;
+          throw new NotFoundException(`${fhirResult.message.diagnostics}`);
+        }
+      }
+
+      return { status: HttpStatus.CREATED, data: newTransfer };
+    } catch (error) {
+      throw new HttpException(
+        `An error occured ${error}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async findAll(status?: string, topic?: string, from?: Date, to?: Date) {

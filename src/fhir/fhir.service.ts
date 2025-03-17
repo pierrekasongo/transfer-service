@@ -131,200 +131,218 @@ export class FhirService {
     }
   }
   private async matchPatientToFHIR(patientRUA) {
-    let patientFHIR = {
+    let patientFHIR: any = {
       resourceType: 'Patient',
-      extension: [
-        {
-          url: `${this.extension_url}/Religion`,
-          valueCoding: {
-            system: `${this.codesystem_url}/religion-codesystem`,
-            code: patientRUA?.initial_religion,
-          },
-        },
-        {
-          url: `${this.extension_url}/OriginProvince`,
-          valueReference: {
-            reference:
-              patientRUA?.province_origine_id &&
-              `Organization/${patientRUA?.province_origine_id}`,
-            display: patientRUA?.province_origine,
-          },
-        },
-        {
-          url: `${this.extension_url}/OriginCity`,
-          valueReference: {
-            reference:
-              patientRUA?.territoire_ville_origine_id &&
-              `Organization/${patientRUA?.territoire_ville_origine_id}`,
-            display: patientRUA?.territoire_ville_origine,
-          },
-        },
-        {
-          url: `${this.extension_url}/OriginSector`,
-          valueReference: {
-            reference:
-              patientRUA?.commune_secteur_chefferie_origine_id &&
-              `Organization/${patientRUA?.commune_secteur_chefferie_origine_id}`,
-            display: patientRUA?.commune_secteur_chefferie_origine,
-          },
-        },
-        {
-          url: `${this.extension_url}/Program`,
-          valueCoding: {
-            system: `${this.codesystem_url}/program-codesystem`,
-            code: patientRUA?.programmes_personne[0]?.initial_programme,
-          },
-        },
-        {
-          url: `${this.extension_url}/Profession`,
-          valueString: patientRUA?.profession,
-        },
-        {
-          url: `${this.extension_url}/EducationLevel`,
-          valueCoding: {
-            system: `${this.codesystem_url}/education-level-codesystem`,
-            code: patientRUA?.initial_niveau_etude,
-          },
-        },
-        {
-          url: `${this.extension_url}/Company`,
-          valueString: patientRUA?.compagnie,
-        },
-        {
-          url: `${this.extension_url}/IsFormalSector`,
-          valueBoolean: patientRUA?.is_secteur_formel,
-        },
-        {
-          url: `${this.extension_url}/IsPublicCompany`,
-          valueBoolean: patientRUA?.is_compagnie_publique,
-        },
-        {
-          url: `${this.extension_url}/Position`,
-          valueString: patientRUA?.fonction,
-        },
-        {
-          url: `${this.extension_url}/Grade`,
-          valueString: patientRUA?.grade,
-        },
-        {
-          url: `${this.extension_url}/OriginVillage`,
-          valueReference: {
-            reference:
-              patientRUA?.quartier_village_origine_id &&
-              `Organization/${patientRUA?.quartier_village_origine_id}`,
-            display: patientRUA?.quartier_village_origine,
-          },
-        },
-        {
-          url: `${this.extension_url}/RegistrationChannel`,
-          valueString: patientRUA?.canal_enregistrement,
-        },
-        {
-          url: `${this.extension_url}/EstablishmentReference`,
-          valueReference: {
-            reference:
-              patientRUA?.enregistre_par_id_etablissement &&
-              `Location/${patientRUA?.enregistre_par_id_etablissement}`,
-            display: patientRUA?.enregistre_par_nom_etablissement,
-          },
-        },
-        {
-          url: `${this.extension_url}/RegistrationDate`,
-          valueDateTime: patientRUA?.date_creation,
-        },
-        {
-          url: `${this.extension_url}/BloodGroup`,
-          valueCoding: {
-            system: `${this.codesystem_url}/blood-group-codesystem`,
-            code:
-              patientRUA?.initial_groupe_sanguin &&
-              patientRUA?.initial_groupe_sanguin,
-          },
-        },
-        {
-          url: `${this.extension_url}/Electrophoresis`,
-          valueCoding: {
-            system: `${this.codesystem_url}/electrophorese-codesystem`,
-            code:
-              patientRUA?.initial_electrophorese &&
-              patientRUA?.initial_electrophorese,
-          },
-        },
-        {
-          url: `${this.extension_url}/UserReference`,
-          valueString: patientRUA?.modifie_par_nom_utilisateur,
-        },
-      ],
+      id: '',
+      extension: [],
       active: true,
-      address: {
-        extension: [
-          {
-            url: `${this.extension_url}/province`,
-            valueReference: {
-              reference:
-                patientRUA?.adresse?.province_id &&
-                `Organization/${patientRUA?.adresse?.province_id}`,
-            },
-          },
-          {
-            url: `${this.extension_url}/town`,
-            valueReference: {
-              reference:
-                patientRUA?.adresse?.territoire_ville_id &&
-                `Organization/${patientRUA?.adresse?.territoire_ville_id}`,
-            },
-          },
-          {
-            url: `${this.extension_url}/municipality`,
-            valueReference: {
-              reference:
-                patientRUA?.adresse?.commune_secteur_chefferie_id &&
-                `Organization/${patientRUA?.adresse?.commune_secteur_chefferie_id}`,
-            },
-          },
-          {
-            url: `${this.extension_url}/neighborhood`,
-            valueReference: {
-              reference:
-                patientRUA?.adresse?.quartier_village_id &&
-                `Organization/${patientRUA?.adresse?.quartier_village_id}`,
-            },
-          },
-          {
-            url: `${this.extension_url}/street`,
-            valueString: patientRUA?.adresse?.avenue,
-          },
-        ],
-      },
-      communication: {
-        language: [
-          {
-            coding: [
-              {
-                system: `${this.valueset_url}/language-valueset`,
-                code: patientRUA?.initial_langue,
-              },
-            ],
-          },
-        ],
-      },
-      gender: {
-        coding: [
-          {
-            system: `${this.valueset_url}/gender-valueset`,
-            code: patientRUA?.initial_sexe,
-          },
-        ],
-      },
-      maritalStatus: {
-        coding: [
-          {
-            system: `${this.valueset_url}/marital-status-valueset`,
-            code: patientRUA?.initial_etat_civil,
-          },
-        ],
-      },
+      address: { extension: [] },
+      communication: { language: [] },
+      gender: { coding: [] },
+      maritalStatus: { coding: [] },
     };
+
+    patientFHIR.id = patientRUA?.ins;
+
+    // Function to add extension only if value exists
+    const addExtension = (url: string, value: any, type: string) => {
+      if (value) {
+        patientFHIR.extension.push({
+          url: `${this.extension_url}/${url}`,
+          [type]: value,
+        });
+      }
+    };
+
+    // Add extensions conditionally
+    addExtension(
+      'Religion',
+      {
+        system: `${this.codesystem_url}/religion-codesystem`,
+        code: patientRUA?.initial_religion,
+      },
+      'valueCoding',
+    );
+    addExtension(
+      'OriginProvince',
+      {
+        reference: patientRUA?.province_origine_id
+          ? `Organization/${patientRUA.province_origine_id}`
+          : undefined,
+        display: patientRUA?.province_origine,
+      },
+      'valueReference',
+    );
+    addExtension(
+      'OriginCity',
+      {
+        reference: patientRUA?.territoire_ville_origine_id
+          ? `Organization/${patientRUA.territoire_ville_origine_id}`
+          : undefined,
+        display: patientRUA?.territoire_ville_origine,
+      },
+      'valueReference',
+    );
+    addExtension(
+      'OriginSector',
+      {
+        reference: patientRUA?.commune_secteur_chefferie_origine_id
+          ? `Organization/${patientRUA.commune_secteur_chefferie_origine_id}`
+          : undefined,
+        display: patientRUA?.commune_secteur_chefferie_origine,
+      },
+      'valueReference',
+    );
+    addExtension(
+      'Program',
+      {
+        system: `${this.codesystem_url}/program-codesystem`,
+        code: patientRUA?.programmes_personne?.[0]?.initial_programme,
+      },
+      'valueCoding',
+    );
+    addExtension('Profession', patientRUA?.profession, 'valueString');
+    addExtension(
+      'EducationLevel',
+      {
+        system: `${this.codesystem_url}/education-level-codesystem`,
+        code: patientRUA?.initial_niveau_etude,
+      },
+      'valueCoding',
+    );
+    addExtension('Company', patientRUA?.compagnie, 'valueString');
+    addExtension(
+      'IsFormalSector',
+      patientRUA?.is_secteur_formel,
+      'valueBoolean',
+    );
+    addExtension(
+      'IsPublicCompany',
+      patientRUA?.is_compagnie_publique,
+      'valueBoolean',
+    );
+    addExtension('Position', patientRUA?.fonction, 'valueString');
+    addExtension('Grade', patientRUA?.grade, 'valueString');
+    addExtension(
+      'OriginVillage',
+      {
+        reference: patientRUA?.quartier_village_origine_id
+          ? `Organization/${patientRUA.quartier_village_origine_id}`
+          : undefined,
+        display: patientRUA?.quartier_village_origine,
+      },
+      'valueReference',
+    );
+    addExtension(
+      'RegistrationChannel',
+      patientRUA?.canal_enregistrement,
+      'valueString',
+    );
+    addExtension(
+      'EstablishmentReference',
+      {
+        reference: patientRUA?.enregistre_par_id_etablissement
+          ? `Location/${patientRUA.enregistre_par_id_etablissement}`
+          : undefined,
+        display: patientRUA?.enregistre_par_nom_etablissement,
+      },
+      'valueReference',
+    );
+    addExtension(
+      'RegistrationDate',
+      patientRUA?.date_creation,
+      'valueDateTime',
+    );
+    addExtension(
+      'BloodGroup',
+      {
+        system: `${this.codesystem_url}/blood-group-codesystem`,
+        code: patientRUA?.initial_groupe_sanguin,
+      },
+      'valueCoding',
+    );
+    addExtension(
+      'Electrophoresis',
+      {
+        system: `${this.codesystem_url}/electrophorese-codesystem`,
+        code: patientRUA?.initial_electrophorese,
+      },
+      'valueCoding',
+    );
+    addExtension(
+      'UserReference',
+      patientRUA?.modifie_par_nom_utilisateur,
+      'valueString',
+    );
+
+    // Address extensions
+    const addAddressExtension = (url: string, reference: any) => {
+      if (reference) {
+        patientFHIR.address.extension.push({
+          url: `${this.extension_url}/${url}`,
+          valueReference: { reference },
+        });
+      }
+    };
+
+    addAddressExtension(
+      'province',
+      patientRUA?.adresse?.province_id
+        ? `Organization/${patientRUA.adresse.province_id}`
+        : undefined,
+    );
+    addAddressExtension(
+      'town',
+      patientRUA?.adresse?.territoire_ville_id
+        ? `Organization/${patientRUA.adresse.territoire_ville_id}`
+        : undefined,
+    );
+    addAddressExtension(
+      'municipality',
+      patientRUA?.adresse?.commune_secteur_chefferie_id
+        ? `Organization/${patientRUA.adresse.commune_secteur_chefferie_id}`
+        : undefined,
+    );
+    addAddressExtension(
+      'neighborhood',
+      patientRUA?.adresse?.quartier_village_id
+        ? `Organization/${patientRUA.adresse.quartier_village_id}`
+        : undefined,
+    );
+    if (patientRUA?.adresse?.avenue) {
+      patientFHIR.address.extension.push({
+        url: `${this.extension_url}/street`,
+        valueString: patientRUA.adresse.avenue,
+      });
+    }
+
+    // Communication language
+    if (patientRUA?.initial_langue) {
+      patientFHIR.communication.language.push({
+        coding: [
+          {
+            system: `${this.valueset_url}/language-valueset`,
+            code: patientRUA.initial_langue,
+          },
+        ],
+      });
+    }
+
+    // Gender coding
+    if (patientRUA?.initial_sexe) {
+      patientFHIR.gender.coding.push({
+        system: `${this.valueset_url}/gender-valueset`,
+        code: patientRUA.initial_sexe,
+      });
+    }
+
+    // Marital status
+    if (patientRUA?.initial_etat_civil) {
+      patientFHIR.maritalStatus.coding.push({
+        system: `${this.valueset_url}/marital-status-valueset`,
+        code: patientRUA.initial_etat_civil,
+      });
+    }
     return patientFHIR;
   }
 
@@ -335,17 +353,13 @@ export class FhirService {
       const foundPatient = await axios.get(patientUrl);
       //throw new ConflictException(`Patient with ID ${id} already exists.`);
     } catch (error) {
-      console.log(error);
       if (error.response?.status === HttpStatus.NOT_FOUND) {
         // Step 2: If Not Found (404), create the patient
         const patientFHIR = await this.matchPatientToFHIR(patientRUA);
 
-        console.log(patientFHIR);
         try {
-          console.log('Patient not found, creating...');
-          const response = await axios.put(patientUrl, patientFHIR);
-          console.log(response);
-          return response.data; // Return created Location
+          const response = await axios.put(patientFHIR);
+          //return response.data; // Return created Location
         } catch (postError) {
           throw new InternalServerErrorException(
             `Failed to create Patient: ${postError.message}`,
