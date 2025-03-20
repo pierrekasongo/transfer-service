@@ -13,10 +13,14 @@ import {
   Response,
 } from '@nestjs/common';
 import { TransfertService } from './transfert.service';
+import { MercureService } from 'src/mercure/mercure.service';
 
 @Controller('transfert')
 export class TransfertController {
-  constructor(private readonly transfertService: TransfertService) {}
+  constructor(
+    private readonly transfertService: TransfertService,
+    private readonly mercureService: MercureService,
+  ) {}
 
   @Post()
   async create(@Body() resource: any) {
@@ -45,7 +49,9 @@ export class TransfertController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     try {
-      return this.transfertService.findOne(id);
+      const transfert = this.transfertService.findOne(id);
+      //this.mercureService.publish('9999999', transfert);
+      return transfert;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

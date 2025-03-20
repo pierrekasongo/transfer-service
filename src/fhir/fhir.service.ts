@@ -347,10 +347,11 @@ export class FhirService {
   }
 
   async ensurePatientExists(id: string, patientRUA: any) {
-    const patientUrl = `${this.fhirServerUrl}/Patient/${id}`;
+    const patientUrl = `${this.fhirServerUrl}/Patient`;
     try {
       // Step 1: Check if Patient already exists
-      const foundPatient = await axios.get(patientUrl);
+      const foundPatient = await axios.get(`${patientUrl}/${id}`);
+      return foundPatient;
       //throw new ConflictException(`Patient with ID ${id} already exists.`);
     } catch (error) {
       if (error.response?.status === HttpStatus.NOT_FOUND) {
@@ -358,7 +359,8 @@ export class FhirService {
         const patientFHIR = await this.matchPatientToFHIR(patientRUA);
 
         try {
-          const response = await axios.put(patientFHIR);
+          const response = await this.putResource(patientFHIR, ActionEnum.PUT);
+          return response;
           //return response.data; // Return created Location
         } catch (postError) {
           throw new InternalServerErrorException(

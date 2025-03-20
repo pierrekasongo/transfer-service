@@ -31,10 +31,7 @@ export class TransfertService {
       const result = await this.ruaService.getPatientByINS(patient_ins);
       if (result) {
         // Check patient
-        const patientResult = this.fhirService.ensurePatientExists(
-          patient_ins,
-          result,
-        );
+        await this.fhirService.ensurePatientExists(patient_ins, result);
       }
 
       // Check if there's already an in-progress transfer for the given patient_ins
@@ -159,7 +156,7 @@ export class TransfertService {
       where: { id },
       data: { ...updateTransfertDto },
     });
-
+    8;
     if (updatedTransfer) {
       // Update fhir resource
       await this.fhirService.putResource(resource, ActionEnum.PUT);
