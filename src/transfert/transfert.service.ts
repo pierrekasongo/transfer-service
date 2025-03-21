@@ -158,7 +158,10 @@ export class TransfertService {
       await this.fhirService.putResource(resource, ActionEnum.PUT);
 
       // Publish back to mercure to notify the sender
-      await this.mercureService.publish(updatedTransfer.source_id, resource);
+      await this.mercureService.publish(
+        updatedTransfer.source_id,
+        updateTransfertDto,
+      );
     }
 
     return { status: HttpStatus.OK, data: updatedTransfer };
