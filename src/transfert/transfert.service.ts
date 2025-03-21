@@ -156,7 +156,6 @@ export class TransfertService {
       where: { id },
       data: { ...updateTransfertDto },
     });
-    8;
     if (updatedTransfer) {
       // Update fhir resource
       await this.fhirService.putResource(resource, ActionEnum.PUT);
