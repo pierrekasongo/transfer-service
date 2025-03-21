@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Body,
   Patch,
   Param,
@@ -57,7 +58,7 @@ export class TransfertController {
     }
   }
 
-  @Patch(':id')
+  @Put(':id')
   async update(@Param('id') id: string, @Body() resource: any) {
     try {
       return await this.transfertService.update(id, resource);
