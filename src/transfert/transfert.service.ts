@@ -115,11 +115,7 @@ export class TransfertService {
     const data = await this.databaseService.transfert.findMany({
       where: {
         ...(status ? { status: status } : {}), // Apply status filter only if defined
-        ...(topic
-          ? {
-              OR: [{ source_id: topic }, { destination_id: topic }],
-            }
-          : {}), // Apply OR filter only if topic is defined
+        ...(topic ? { destination_id: topic } : {}), // Apply OR filter only if topic is defined
         ...(from || to
           ? {
               createdAt: {
@@ -135,6 +131,7 @@ export class TransfertService {
       // Then publish possibly missed transfers to mercure
       for (const transfer of data) {
         await this.mercureService.publish(transfer.destination_id, transfer);
+        console.log('Pushed...');
       }
     }
 

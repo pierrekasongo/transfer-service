@@ -23,16 +23,6 @@ export class TransfertController {
     private readonly mercureService: MercureService,
   ) {}
 
-  @Post()
-  async create(@Body() resource: any) {
-    //return this.transfertService.create(resource);
-    try {
-      return await this.transfertService.create(resource);
-    } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
   @Get()
   async findAll(
     @Query('status') status?: string,
@@ -42,6 +32,16 @@ export class TransfertController {
   ) {
     try {
       return await this.transfertService.findAll(status, topic, from, to);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post()
+  async create(@Body() resource: any) {
+    //return this.transfertService.create(resource);
+    try {
+      return await this.transfertService.create(resource);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
