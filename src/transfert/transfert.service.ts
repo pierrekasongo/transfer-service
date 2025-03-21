@@ -160,7 +160,7 @@ export class TransfertService {
       // Publish back to mercure to notify the sender
       await this.mercureService.publish(
         updatedTransfer.source_id,
-        updateTransfertDto,
+        updatedTransfer,
       );
     }
 
