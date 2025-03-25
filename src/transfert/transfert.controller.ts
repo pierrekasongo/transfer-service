@@ -26,12 +26,19 @@ export class TransfertController {
   @Get()
   async findAll(
     @Query('status') status?: string,
-    @Query('topic') topic?: string,
+    @Query('source') source?: string,
+    @Query('destination') destination?: string,
     @Query('from') from?: Date,
     @Query('to') to?: Date,
   ) {
     try {
-      return await this.transfertService.findAll(status, topic, from, to);
+      return await this.transfertService.findAll(
+        status,
+        source,
+        destination,
+        from,
+        to,
+      );
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
