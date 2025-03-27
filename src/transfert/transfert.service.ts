@@ -119,11 +119,35 @@ export class TransfertService {
     source = source?.replaceAll('"', '').replaceAll("'", '').trim();
     destination = destination?.replaceAll('"', '').replaceAll("'", '').trim();
     status = status?.replaceAll('"', '').replaceAll("'", '').trim();
+
+    if (status === Status.TRANSFER_IN_PROGRESS) {
+      const published_data = await this.databaseService.transfert.findMany({
+        where: {
+          ...(status ? { status: status } : {}),
+          ...(topic ? { destination_id: topic } : {}),
+          ...(from || to
+            ? {
+                createdAt: {
+                  ...(from ? { gte: new Date(from) } : {}),
+                  ...(to ? { lte: new Date(to + 'T23:59:59.999Z') } : {}),
+                },
+              }
+            : {}),
+        },
+      });
+
+      // Then publish possibly missed transfers to mercure
+      for (const transfer of published_data) {
+        await this.mercureService.publish(transfer.destination_id, transfer);
+      }
+    }
     const data = await this.databaseService.transfert.findMany({
       where: {
-        ...(status ? { status: status } : {}), // Apply status filter only if defined
-        ...(source ? { source_id: source } : {}), // Apply OR filter only if topic is defined
-        ...(destination ? { destination_id: destination } : {}),
+        ...(status ? { status: status } : {}),
+        ...(topic
+          ? { OR: [{ source_id: topic }, { destination_id: topic }] }
+          : {}),
+
         ...(from || to
           ? {
               createdAt: {
@@ -134,14 +158,6 @@ export class TransfertService {
           : {}),
       },
     });
-
-    if (status === Status.TRANSFER_IN_PROGRESS) {
-      // Then publish possibly missed transfers to mercure
-      for (const transfer of data) {
-        await this.mercureService.publish(transfer.destination_id, transfer);
-        console.log('Pushed...');
-      }
-    }
 
     return { status: HttpStatus.OK, data: data };
   }
