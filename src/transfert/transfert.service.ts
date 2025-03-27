@@ -132,7 +132,6 @@ export class TransfertService {
       // Then publish possibly missed transfers to mercure
       for (const transfer of published_data) {
         await this.mercureService.publish(transfer.destination_id, transfer);
-        console.log('Pushed...');
       }
     }
     const data = await this.databaseService.transfert.findMany({
