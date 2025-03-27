@@ -109,8 +109,15 @@ export class TransfertService {
     }
   }
 
-  async findAll(status?: string, topic?: string, from?: Date, to?: Date) {
-    topic = topic?.replaceAll('"', '').replaceAll("'", '').trim();
+  async findAll(
+    status?: string,
+    source?: string,
+    destination?: string,
+    from?: Date,
+    to?: Date,
+  ) {
+    source = source?.replaceAll('"', '').replaceAll("'", '').trim();
+    destination = destination?.replaceAll('"', '').replaceAll("'", '').trim();
     status = status?.replaceAll('"', '').replaceAll("'", '').trim();
 
     if (status === Status.TRANSFER_IN_PROGRESS) {
@@ -140,6 +147,7 @@ export class TransfertService {
         ...(topic
           ? { OR: [{ source_id: topic }, { destination_id: topic }] }
           : {}),
+
         ...(from || to
           ? {
               createdAt: {
