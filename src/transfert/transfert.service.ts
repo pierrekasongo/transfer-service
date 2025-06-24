@@ -11,6 +11,7 @@ import { MercureService } from 'src/mercure/mercure.service';
 import { FhirService } from 'src/fhir/fhir.service';
 import { ActionEnum } from 'src/common/enums/action.enum';
 import { RuaService } from 'src/rua/rua.service';
+import { TerritorialeService } from 'src/territoriale/territoriale.service';
 
 @Injectable()
 export class TransfertService {
@@ -19,6 +20,7 @@ export class TransfertService {
     private readonly mercureService: MercureService,
     private readonly fhirService: FhirService,
     private readonly ruaService: RuaService,
+    private readonly territorialeService: TerritorialeService,
   ) {}
   async create(resource: any) {
     // Flatten resource
@@ -150,7 +152,30 @@ export class TransfertService {
           : {}),
       },
     });
+    // Get ESS map
+    try {
+      const essMap = await this.territorialeService.getAllESS();
 
+      // Replace facility names with names from map of key and value
+      if (!essMap) {
+        console.warn('ESS map is not available, skipping name replacement.');
+        return { status: HttpStatus.OK, data: data };
+      }
+      if (essMap && essMap.size > 0) {
+        console.log('ESS map available, replacing names in transfers.');
+        for (const transfer of data) {
+          if (transfer.source_id && essMap.has(transfer.source_id)) {
+            transfer.source = essMap.get(transfer.source_id) ?? transfer.source;
+          }
+          if (transfer.destination_id && essMap.has(transfer.destination_id)) {
+            transfer.destination =
+              essMap.get(transfer.destination_id) ?? transfer.destination;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching ESS map:', error);
+    }
     return { status: HttpStatus.OK, data: data };
   }
 

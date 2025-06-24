@@ -9,6 +9,7 @@ import { TransfertModule } from './transfert/transfert.module';
 import { MercureService } from './mercure/mercure.service';
 import { FhirService } from './fhir/fhir.service';
 import { RuaService } from './rua/rua.service';
+import { TerritorialeService } from './territoriale/territoriale.service';
 
 @Module({
   imports: [
@@ -21,6 +22,6 @@ import { RuaService } from './rua/rua.service';
   ],
   exports: [AppService],
   controllers: [AppController],
-  providers: [AppService, OpenHimService, MercureService, FhirService, RuaService],
+  providers: [AppService, OpenHimService, MercureService, FhirService, RuaService, TerritorialeService],
 })
 export class AppModule {}
