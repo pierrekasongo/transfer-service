@@ -157,20 +157,19 @@ export class TransfertService {
       const essMap = await this.territorialeService.getAllESS();
 
       // Replace facility names with names from map of key and value
-      if (!essMap) {
+      if (!essMap || essMap.size === 0) {
         console.warn('ESS map is not available, skipping name replacement.');
         return { status: HttpStatus.OK, data: data };
       }
-      if (essMap && essMap.size > 0) {
-        console.log('ESS map available, replacing names in transfers.');
-        for (const transfer of data) {
-          if (transfer.source_id && essMap.has(transfer.source_id)) {
-            transfer.source = essMap.get(transfer.source_id) ?? transfer.source;
-          }
-          if (transfer.destination_id && essMap.has(transfer.destination_id)) {
-            transfer.destination =
-              essMap.get(transfer.destination_id) ?? transfer.destination;
-          }
+
+      console.log('ESS map available, replacing names in transfers.');
+      for (const transfer of data) {
+        if (transfer.source_id && essMap.has(transfer.source_id)) {
+          transfer.source = essMap.get(transfer.source_id) ?? transfer.source;
+        }
+        if (transfer.destination_id && essMap.has(transfer.destination_id)) {
+          transfer.destination =
+            essMap.get(transfer.destination_id) ?? transfer.destination;
         }
       }
     } catch (error) {
